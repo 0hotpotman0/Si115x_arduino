@@ -1,10 +1,10 @@
-#ifndef SI1153_H
-#define SI1153_H
+#ifndef SI115X_H
+#define SI115X_H
 
 #include <Arduino.h>
 #include <Wire.h>
 
-class Si1153
+class Si115X
 {
 	public:
 		typedef enum {
@@ -120,7 +120,7 @@ class Si1153
 			BURST = 0x2B			
 		} ParameterAddress;
 		
-		Si1153();
+		Si115X();
 		void config_channel(uint8_t index, uint8_t *conf);
 		void write_data(uint8_t addr, uint8_t *data, size_t len);
 		int read_register(uint8_t addr, uint8_t reg, int bytesOfData);
