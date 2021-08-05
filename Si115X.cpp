@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include "Si115X.h"
 
-Si115X::Si115X() {
-	//empty constructor
-}
+// Si115X::Si115X() {
+// 	//empty constructor
+// }
 
 /**
  * Configures a channel at a given index
@@ -127,3 +127,65 @@ int Si115X::get_int_from_bytes(uint8_t *data, size_t len){
 	
     return result;
 }
+
+
+
+
+bool Si115X::Begin(void){
+    Wire.begin();
+    if (ReadByte(0x00) != 0x51) {
+        return false;
+    }
+    Si115X::send_command(Si115X::START);
+
+    Si115X::param_set(Si115X::CHAN_LIST, 0B000010);
+
+    Si115X::param_set(Si115X::MEASRATE_H, 0);
+    Si115X::param_set(Si115X::MEASRATE_L, 1);  // 1 for a base period of 800 us
+    Si115X::param_set(Si115X::MEASCOUNT_0, 5); 
+    Si115X::param_set(Si115X::MEASCOUNT_1, 10);
+    Si115X::param_set(Si115X::MEASCOUNT_2, 10);
+    Si115X::param_set(Si115X::THRESHOLD0_L, 200);
+    Si115X::param_set(Si115X::THRESHOLD0_H, 0);
+
+    Wire.beginTransmission(Si115X::DEVICE_ADDRESS);
+    Wire.write(Si115X::IRQ_ENABLE);
+    Wire.write(0B000010);
+    Wire.endTransmission();
+
+    uint8_t conf[4];
+
+    conf[0] = 0B00000000;
+    conf[1] = 0B00000010, 
+    conf[2] = 0B00000001;
+    conf[3] = 0B11000001;
+    Si115X::config_channel(1, conf);
+
+    conf[0] = 0B00000000;
+    conf[1] = 0B00000010, 
+    conf[2] = 0B00000001;
+    conf[3] = 0B11000001;
+    Si115X::config_channel(3, conf);
+    return true;
+
+}
+
+uint16_t Si115X::ReadHalfWord(void) {
+    Si115X::send_command(Si115X::FORCE);
+    uint8_t data[3];
+    data[0] = Si115X::read_register(Si115X::DEVICE_ADDRESS, Si115X::HOSTOUT_0, 1);
+    data[1] = Si115X::read_register(Si115X::DEVICE_ADDRESS, Si115X::HOSTOUT_1, 1);
+    // Si115X::send_command(Si115X::PAUSE);
+    // data[3] = data[0] * 256 + data[1];
+    return data[0] * 256 + data[1];
+}
+
+
+uint8_t Si115X::ReadByte(uint8_t Reg) {
+    Wire.beginTransmission(Si115X::DEVICE_ADDRESS);
+    Wire.write(Reg);
+    Wire.endTransmission();
+    Wire.requestFrom(Si115X::DEVICE_ADDRESS, 1);
+    return Wire.read();
+}
+

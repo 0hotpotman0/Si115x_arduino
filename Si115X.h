@@ -120,7 +120,7 @@ class Si115X
 			BURST = 0x2B			
 		} ParameterAddress;
 		
-		Si115X();
+		// Si115X();
 		void config_channel(uint8_t index, uint8_t *conf);
 		void write_data(uint8_t addr, uint8_t *data, size_t len);
 		int read_register(uint8_t addr, uint8_t reg, int bytesOfData);
@@ -128,7 +128,9 @@ class Si115X
 		int param_query(uint8_t loc);
 		void send_command(uint8_t code);
 		int get_int_from_bytes(uint8_t *data, size_t len);
-
+		bool Begin(void);
+		uint16_t ReadHalfWord(void);
+		uint8_t ReadByte(uint8_t Reg);
 };
 
 #endif
